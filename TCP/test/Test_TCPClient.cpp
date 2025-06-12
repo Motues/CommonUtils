@@ -31,7 +31,7 @@ void RunClient() {
 
         // 接收服务器响应
         std::string response;
-        if (client.RecvData(response)) {
+        if (client.RecData(response)) {
             std::cout << "Server response: " << response << std::endl;
         }
     }
