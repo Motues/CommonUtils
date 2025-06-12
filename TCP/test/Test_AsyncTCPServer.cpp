@@ -7,8 +7,8 @@ using namespace Utils::TCP;
 
 
 int main() {
-    Utils::TCP::AsyncTCPServer server(1717, "127.0.0.1", Utils::IPType::IPV4);
-    if (!server.CreateServer() || !server.BindPort() || !server.ListenServer() || !server.StartServer()) {
+    Utils::TCP::AsyncTCPServer server(1717, "127.0.0.1", IPType::IPV4);
+    if (!server.StartServer()) {
         std::cerr << "Failed to start server" << std::endl;
         return 1;
     }
@@ -16,9 +16,11 @@ int main() {
     while (true) {
         TCPMessage msg;
         if (server.GetMessage(msg)) {
+            std::cout << "Received from: " << msg.clientPtr->address << ":" << msg.clientPtr->port << std::endl;
             std::cout << "Received message: " << msg.data << std::endl;
+            server.SendData("Hello from server", msg.clientPtr);
         }
-        sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     // 主线程可以继续执行其他任务

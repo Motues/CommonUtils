@@ -3,7 +3,10 @@
 #include "Utils/TCP.hpp"
 
 void RunClient() {
-    Utils::TCP::SingleTCPClient client("127.0.0.1", 1717, Utils::IPType::IPV4);
+
+    using namespace Utils::TCP;
+
+    SingleTCPClient client("127.0.0.1", 1717, IPType::IPV4);
     if (!client.ConnectToServer()) {
         std::cerr << "Failed to connect to server." << std::endl;
         return;

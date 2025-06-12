@@ -4,7 +4,7 @@
 
 #include <boost/asio.hpp>
 
-namespace Utils {
+namespace Utils :: TCP {
     using IOContext = boost::asio::io_context;
     using IOContextPtr = std::shared_ptr<IOContext>;
     using BoostErrorCode = boost::system::error_code;
@@ -16,15 +16,6 @@ namespace Utils {
         IPV4 = 0,
         IPV6 = 1
     };
-
-    enum class MessageType{
-        CONNECT = 0,
-        DISCONNECT = 1,
-        DATA = 2
-    };
-}
-
-namespace Utils :: TCP {
 
     using TCPAcceptor = boost::asio::ip::tcp::acceptor;
     using TCPSocket = boost::asio::ip::tcp::socket;
@@ -46,10 +37,10 @@ namespace Utils :: TCP {
     using TCPClientPtr = std::shared_ptr<TCPClient>;
 
     // TCP消息
-    using Time = std::chrono::time_point<std::chrono::system_clock>;
+    using Time = std::chrono::steady_clock::time_point;
     struct TCPMessage {
-        MessageType type;
         Time time;
+        TCPClientPtr clientPtr;
         std::string data;
     };
     using TCPMessagePtr = std::shared_ptr<TCPMessage>;

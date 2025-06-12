@@ -4,9 +4,6 @@ namespace Utils::TCP {
 
 SingleTCPClient::SingleTCPClient() = default;
 
-SingleTCPClient::SingleTCPClient(std::string serverAddress, int port) :
-    serverAddress(std::move(serverAddress)), port(port) {}
-
 SingleTCPClient::SingleTCPClient(std::string serverAddress, int port, IPType ipType) :
     serverAddress(std::move(serverAddress)), port(port), ipType(ipType) {}
 
@@ -33,7 +30,6 @@ bool SingleTCPClient::ConnectToServer() {
         std::cerr << "Connection failed: " << ec.message() << std::endl;
         return false;
     }
-    std::cout << "Connected to server " << serverAddress << ":" << port << std::endl;
     return true;
 }
 
@@ -53,11 +49,10 @@ bool SingleTCPClient::SendData(const std::string& data) {
         std::cerr << "Failed to send data: " << ec.message() << std::endl;
         return false;
     }
-    std::cout << "Data sent:" << data << std::endl;
     return true;
 }
 
-bool SingleTCPClient::RecvData(std::string& data) {
+bool SingleTCPClient::RecData(std::string& data) {
     if (!serverSocketPtr || !serverSocketPtr->is_open()) {
         std::cerr << "Client socket not open" << std::endl;
         return false;
@@ -77,7 +72,6 @@ bool SingleTCPClient::RecvData(std::string& data) {
     const boost::asio::const_buffer data_buffer = buffer.data();
     data = std::string(static_cast<const char*>(data_buffer.data()), bytes_transferred);
 //    data = std::string(boost::asio::buffer_cast<const char*>(buffer.data()), bytes_transferred);
-    std::cout << "Data received: " << data << std::endl;
     return true;
 }
 

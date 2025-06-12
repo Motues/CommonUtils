@@ -2,163 +2,18 @@
 
 namespace Utils::TCP {
 
-#pragma region SingleTCPServer
-
-SingleTCPServer::SingleTCPServer() = default;
-
-SingleTCPServer::SingleTCPServer(int port) :
-    port(port) {}
-SingleTCPServer::SingleTCPServer(std::string serverAddress) :
-     serverAddress(std::move(serverAddress)){}
-SingleTCPServer::SingleTCPServer(int port, std::string serverAddress) :
-    port(port), serverAddress(std::move(serverAddress)) {}
-SingleTCPServer::SingleTCPServer(int port, IPType ipType) :
-    port(port), ipType(ipType){}
-SingleTCPServer::SingleTCPServer(int port, std::string  serverAddress, IPType ipType) :
-    port(port), serverAddress(std::move(serverAddress)), ipType(ipType) {}
-
-SingleTCPServer::~SingleTCPServer() {
-    CloseClient();
-    CloseServer();
-}
-
-bool SingleTCPServer::CreateServer() {
-    ioContextPtr = std::make_shared<IOContext>();
-    acceptorPtr = std::make_shared<TCPAcceptor>(*ioContextPtr);
-    clientPtr = std::make_shared<TCPClient>(*ioContextPtr);
-    if (!ioContextPtr || !acceptorPtr || !clientPtr) {
-        std::cerr << "Failed to create io_context" << std::endl;
-        return false;
-    }
-    return true;
-}
-
-bool SingleTCPServer::BindPort() {
-    TCPEndPoint endpoint;
-    if (ipType == IPType::IPV4) {
-        endpoint = TCPEndPoint(
-            boost::asio::ip::make_address(serverAddress), port);
-    } else {
-        endpoint = TCPEndPoint(
-            boost::asio::ip::make_address_v6(serverAddress), port);
-    }
-    acceptorPtr->open(endpoint.protocol());
-    acceptorPtr->set_option(boost::asio::socket_base::reuse_address(true));
-    acceptorPtr->bind(endpoint);
-
-    if (!acceptorPtr->is_open()) {
-        std::cerr << "Failed to bind socket" << std::endl;
-        return false;
-    }
-    std::cout << "Socket bound to address " << serverAddress << " and port " << port << std::endl;
-    return true;
-}
-
-bool SingleTCPServer::ListenServer() {
-    BoostErrorCode ec;
-    acceptorPtr->listen(maxClientsNumber, ec);
-    if (ec) {
-        std::cerr << "Listen failed: " << ec.message() << std::endl;
-        return false;
-    }
-    std::cout << "Server listening on port " << port << std::endl;
-    return true;
-}
-
-
-bool SingleTCPServer::AcceptClient() {
-    clientPtr->socket = TCPSocket(*ioContextPtr);
-    BoostErrorCode ec;
-    TCPEndPoint endpoint;
-    acceptorPtr->accept(clientPtr->socket, endpoint, ec);
-    if (ec) {
-        std::cerr << "Accept failed: " << ec.message() << std::endl;
-        return false;
-    }
-    clientPtr->address = endpoint.address().to_string();
-    clientPtr->port = endpoint.port();
-    std::cout << "Client connected successfully " << std::endl;
-    return true;
-}
-
-
-bool SingleTCPServer::SendData(const std::string& data) const {
-    if (!clientPtr || !clientPtr->socket.is_open()) {
-        std::cerr << "Client socket not open" << std::endl;
-        return false;
-    }
-    if (data.empty()) {
-        std::cerr << "Data is empty" << std::endl;
-        return false;
-    }
-    BoostErrorCode ec;
-    boost::asio::write(clientPtr->socket, boost::asio::buffer(data), ec);
-    if (ec) {
-        std::cerr << "Failed to send data: " << ec.message() << std::endl;
-        return false;
-    }
-    std::cout << "Data sent:" << data << std::endl;
-    return true;
-}
-
-
-bool SingleTCPServer::RecData(std::string& data) {
-    if (!clientPtr || !clientPtr->socket.is_open()) {
-        std::cerr << "Client socket not open" << std::endl;
-        return false;
-    }
-    BoostStreamBuffer buffer;
-    BoostErrorCode ec;
-    std::size_t bytes_transferred = boost::asio::read(clientPtr->socket, buffer,
-                                                      boost::asio::transfer_at_least(1), ec);
-    if (ec == boost::asio::error::eof) {
-        std::cerr << "Server disconnected." << std::endl;
-        return false;
-    }
-    if (ec) {
-        std::cerr << "Failed to receive data: " << ec.message() << std::endl;
-        return false;
-    }
-    data = std::string(static_cast<const char*>(buffer.data().data()), bytes_transferred);
-//    data = std::string(boost::asio::buffer_cast<const char*>(buffer.data()), bytes_transferred);
-    std::cout << "Data received: " << data << std::endl;
-    return true;
-}
-
-bool SingleTCPServer::CloseClient() {
-    if (clientPtr && clientPtr->socket.is_open()) {
-        clientPtr->socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-        clientPtr->socket.close();
-    }
-    return true;
-}
-
-bool SingleTCPServer::CloseServer() {
-    if (acceptorPtr && acceptorPtr->is_open()) {
-        acceptorPtr->close();
-    }
-    if (ioContextPtr) {
-        ioContextPtr->stop();
-    }
-    return true;
-}
-
-#pragma endregion SingleTCPServer
 
 #pragma region AsyncTCPServer
 
 AsyncTCPServer::AsyncTCPServer() = default;
 
-AsyncTCPServer::AsyncTCPServer(int port) :
-    port(port) {}
-AsyncTCPServer::AsyncTCPServer(std::string serverAddress) :
-    serverAddress(std::move(serverAddress)){}
-AsyncTCPServer::AsyncTCPServer(int port, std::string serverAddress) :
-    port(port), serverAddress(std::move(serverAddress)) {}
-AsyncTCPServer::AsyncTCPServer(int port, IPType ipType) :
-    port(port), ipType(ipType){}
 AsyncTCPServer::AsyncTCPServer(int port, std::string  serverAddress, IPType ipType) :
-    port(port), ipType(ipType), serverAddress(std::move(serverAddress)) {}
+    port(port), ipType(ipType), serverAddress(std::move(serverAddress)) {
+    if (!CreateServer() || !BindPort()) {
+        std::cerr << "Failed to create server" << std::endl;
+        return;
+    }
+}
 AsyncTCPServer::~AsyncTCPServer() {
     CloseServer();
     for (auto& clientPtr : clientsPtr) {
@@ -194,7 +49,6 @@ bool AsyncTCPServer::BindPort() {
         std::cerr << "Failed to bind socket" << std::endl;
         return false;
     }
-    std::cout << "Socket bound to address " << serverAddress << " and port " << port << std::endl;
     return true;
 }
 bool AsyncTCPServer::ListenServer() {
@@ -204,10 +58,13 @@ bool AsyncTCPServer::ListenServer() {
         std::cerr << "Listen failed: " << ec.message() << std::endl;
         return false;
     }
-    std::cout << "Server listening on port " << port << std::endl;
     return true;
 }
 bool AsyncTCPServer::StartServer() {
+    if(!ListenServer()) {
+        std::cerr << "Failed to listen" << std::endl;
+        return false;
+    }
     DoAccept();
     serverThread = std::thread([this]() {
         ioContextPtr->run();
@@ -249,12 +106,15 @@ void AsyncTCPServer::StartRead(const TCPClientPtr& clientPtr) {
                 if (!ec) {
                     std::string data(buffer->data(), bytes_transferred);
                     // 将接收到的数据直接存入消息队列
-                    std::cout << "Received data from client " << clientPtr->address << ":" << clientPtr->port << std::endl;
                     TCPMessage msg;
-                    msg.type = MessageType::DATA;
                     msg.data = data;
-                    msg.time = std::chrono::system_clock::now();
+                    msg.time = std::chrono::steady_clock::now();
+                    msg.clientPtr = clientPtr;
                     messageQueue.push(msg);
+
+                    if(msg.data == "exit") {
+                        CloseClient(clientPtr);
+                    }
 
                     // 清空缓冲区并继续读取
                     StartRead(clientPtr);
@@ -289,9 +149,6 @@ void AsyncTCPServer::DoAccept() {
                 clientPtr->address = endpoint.address().to_string();
                 clientPtr->port = endpoint.port();
 
-                std::cout << "Client connected. Address: " << clientPtr->address
-                          << ", Port: " << clientPtr->port << std::endl;
-
                 clientsPtr.push_back(clientPtr);
                 StartRead(clientPtr);
             } else {
@@ -303,8 +160,6 @@ void AsyncTCPServer::DoAccept() {
         }
     );
 }
-
-
 
 bool AsyncTCPServer::SendData(const std::string& data, TCPClientPtr& clientPtr) const {
     if (!clientPtr || !clientPtr->socket.is_open()) {
@@ -321,7 +176,6 @@ bool AsyncTCPServer::SendData(const std::string& data, TCPClientPtr& clientPtr) 
         std::cerr << "Failed to send data: " << ec.message() << std::endl;
         return false;
     }
-    std::cout << "Data sent:" << data << std::endl;
     return true;
 }
 bool AsyncTCPServer::RecData(std::string& data, TCPClientPtr& clientPtr) {
@@ -344,11 +198,11 @@ bool AsyncTCPServer::RecData(std::string& data, TCPClientPtr& clientPtr) {
     const boost::asio::const_buffer data_buffer = buffer.data();
     data = std::string(static_cast<const char*>(data_buffer.data()), bytes_transferred);
 //    data = std::string(boost::asio::buffer_cast<const char*>(buffer.data()), bytes_transferred);
-    std::cout << "Data received: " << data << std::endl;
     return true;
 }
 
 bool AsyncTCPServer::GetMessage(TCPMessage &message) {
+    // MessageQueue 是线程安全的，自动处理容量为空的情况
     if (messageQueue.empty()) {
         return false;
     }
