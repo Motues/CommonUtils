@@ -22,7 +22,7 @@ target_include_directories(UtilsJSON
     INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 target_link_libraries(UtilsJSON
-    PUBLIC nlohmann_json::nlohmann_json
+    INTERFACE nlohmann_json::nlohmann_json
 )
 
 file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
