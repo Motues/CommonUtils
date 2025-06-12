@@ -11,11 +11,11 @@ namespace Utils :: DataBase {
         }
         logger.Info("Opened database successfully");
     }
+
     SQLiteWrapper::~SQLiteWrapper() {
         logger.Flush();
         sqlite3_close(db);
     }
-
 
     void SQLiteWrapper::ConfigureLogger(bool consoleLogger, const std::string &logFile) {
         if (consoleLogger) {
@@ -28,26 +28,38 @@ namespace Utils :: DataBase {
         }
     }
 
-    SQLiteQueryResult SQLiteWrapper::QueryData(const std::string& sql) {
-        std::vector<std::map<std::string, std::string>> result;
-        sqlite3_stmt* stmt = nullptr;
+    bool SQLiteWrapper::CreateTable(const std::string& tableName, const SQLiteKeyType &columns) {
+        return Model::CreateTable(db, tableName, columns);
+    }
 
-        if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-            throw std::runtime_error("Failed to prepare statement: " + std::string(sqlite3_errmsg(db)));
+    bool SQLiteWrapper::DeleteTable(const std::string& tableName) {
+        std::string sql = "DROP TABLE IF EXISTS " + tableName + ";";
+        int rc = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, nullptr);
+        if (rc != SQLITE_OK) {
+            logger.Error("Failed to delete table {}: {}", tableName, sqlite3_errmsg(db));
+            return false;
         }
+        return true;
+    }
 
-        int columnCount = sqlite3_column_count(stmt);
-        while (sqlite3_step(stmt) == SQLITE_ROW) {
-            std::map<std::string, std::string> row;
-            for (int i = 0; i < columnCount; ++i) {
-                const char* columnName = sqlite3_column_name(stmt, i);
-                const unsigned char* columnValue = sqlite3_column_text(stmt, i);
-                row[columnName] = columnValue ? reinterpret_cast<const char*>(columnValue) : "";
-            }
-            result.push_back(row);
-        }
+    bool SQLiteWrapper::InsertData(const std::string& tableName, const SQLiteKeyValue &data) {
+        return Model::Insert(db, tableName, data);
+    }
 
-        sqlite3_finalize(stmt);
-        return result;
+    bool SQLiteWrapper::DeleteData(const std::string& tableName, const std::string& condition) {
+        return Model::Remove(db, tableName, condition);
+    }
+
+    bool SQLiteWrapper::UpdateData(const std::string& tableName, const SQLiteKeyValue &data, const std::string& condition) {
+        return Model::Update(db, tableName, data, condition);
+    }
+
+    SQLiteQueryResult SQLiteWrapper::QueryData(const std::string& tableName) {
+        return Model::QueryColumnAll(db, tableName);
+    }
+
+    void SQLiteWrapper::SQLiteSyntax(std::string &sql) {
+        // 这里可以添加对SQL语句的检查或预处理逻辑
+        // 目前仅作为占位符
     }
 }
