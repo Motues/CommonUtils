@@ -34,9 +34,8 @@ int main() {
 #else
             localtime_r(&now_c, &tm);
 #endif
-            std::ostringstream oss;
-            oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
-            std::string time_str = oss.str();
+            char time_str[20];  // 足够容纳 "YYYY-MM-DD HH:MM:SS"
+            std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", &tm);
             file << "Time: " << time_str << std::endl;
             file << "Received from: " << msg.clientPtr->address << ":" << msg.clientPtr->port << std::endl;
             file << "Received message: " << msg.data << std::endl <<  std::endl;
