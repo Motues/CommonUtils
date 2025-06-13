@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.28)
-
 project(Utils.DataBase)
 
 # 设置项目语言和标准
