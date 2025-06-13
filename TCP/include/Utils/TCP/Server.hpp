@@ -4,6 +4,7 @@
 #include <vector>
 #include <queue>
 #include <iostream>
+#include <mutex>
 
 #include "BasicType.hpp"
 #include "Utils/MessageQueue.hpp"
@@ -18,8 +19,9 @@ public:
     AsyncTCPServer(int port = 1717, std::string serverAddress = "127.0.0.1", IPType ipType = IPType::IPV4);
     ~AsyncTCPServer();
 
-    bool SendData(const std::string& data, TCPClientPtr& clientPtr) const; // 发送数据
+    bool SendData(const std::string& data, TCPClientPtr& clientPtr); // 发送数据
     bool RecData(std::string& data, TCPClientPtr& clientPtr); // 接收数据
+    void PostCloseClient(const TCPClientPtr& clientPtr); // 添加关闭客户端任务
     bool GetMessage(TCPMessage &message); // 获取服务器接收到的消息
 
     bool StartServer(); // 启动服务器
@@ -32,6 +34,7 @@ private:
     int maxClientsNumber{1024};
     IOContextPtr ioContextPtr;
     TCPAcceptorPtr acceptorPtr;
+    std::mutex clientsMutex;
     std::vector<TCPClientPtr> clientsPtr;
     MessageQueue<TCPMessage> messageQueue;
     std::thread serverThread;

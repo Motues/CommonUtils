@@ -108,21 +108,17 @@ void AsyncTCPServer::StartRead(const TCPClientPtr& clientPtr) {
                     // 将接收到的数据直接存入消息队列
                     TCPMessage msg;
                     msg.data = data;
-                    msg.time = std::chrono::steady_clock::now();
+                    msg.time = std::chrono::system_clock::now();
                     msg.clientPtr = clientPtr;
                     messageQueue.push(msg);
 
-                    if(msg.data == "exit") {
-                        CloseClient(clientPtr);
-                    }
-
-                    // 清空缓冲区并继续读取
                     StartRead(clientPtr);
                 } else {
-                    if (ec != boost::asio::error::eof) {
+                    if (ec != boost::asio::error::eof && ec != boost::asio::error::connection_reset) {
                         std::cerr << "Read error: " << ec.message() << std::endl;
                     }
-                    CloseClient(clientPtr);
+                    PostCloseClient(clientPtr); // 安全关闭
+                    // std::cout<<"Client "<<clientPtr->address<<":"<<clientPtr->port<<" disconnected"<<std::endl;
                 }
             });
 }
@@ -161,7 +157,7 @@ void AsyncTCPServer::DoAccept() {
     );
 }
 
-bool AsyncTCPServer::SendData(const std::string& data, TCPClientPtr& clientPtr) const {
+bool AsyncTCPServer::SendData(const std::string& data, TCPClientPtr& clientPtr) {
     if (!clientPtr || !clientPtr->socket.is_open()) {
         std::cerr << "Client socket not open" << std::endl;
         return false;
@@ -174,6 +170,7 @@ bool AsyncTCPServer::SendData(const std::string& data, TCPClientPtr& clientPtr) 
     boost::asio::write(clientPtr->socket, boost::asio::buffer(data), ec);
     if (ec) {
         std::cerr << "Failed to send data: " << ec.message() << std::endl;
+        PostCloseClient(clientPtr);
         return false;
     }
     return true;
@@ -219,12 +216,37 @@ bool AsyncTCPServer::CloseServer() {
     }
     return true;
 }
+
 bool AsyncTCPServer::CloseClient(const TCPClientPtr& clientPtr) {
-    if (clientPtr && clientPtr->socket.is_open()) {
-        clientPtr->socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-        clientPtr->socket.close();
+    if (!clientPtr || !clientPtr->socket.is_open()) {
+        return true; // 已关闭或无效指针，直接返回成功
     }
+    BoostErrorCode ec;
+    // 先尝试 shutdown，并忽略错误
+    clientPtr->socket.shutdown(TCPSocket::shutdown_both, ec);
+    if (ec) {
+        // 忽略特定错误，如 "not connected"
+        std::cerr << "Shutdown error: " << ec.message() << std::endl;
+    }
+    // 再关闭 socket
+    clientPtr->socket.close(ec);
+    if (ec) {
+        std::cerr << "Close error: " << ec.message() << std::endl;
+    }
+    // 从客户端列表移除
+    std::lock_guard<std::mutex> lock(clientsMutex);
+    clientsPtr.erase(
+        std::remove(clientsPtr.begin(), clientsPtr.end(), clientPtr),
+        clientsPtr.end()
+    );
     return true;
+}
+void AsyncTCPServer::PostCloseClient(const TCPClientPtr& clientPtr) {
+    if (!clientPtr) return;
+
+    ioContextPtr->post([this, clientPtr]() {
+        CloseClient(clientPtr);  // 确保在IO线程执行关闭
+    });
 }
 
 #pragma region AsyncTCPServer

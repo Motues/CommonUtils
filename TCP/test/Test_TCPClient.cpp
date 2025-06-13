@@ -6,7 +6,7 @@ void RunClient() {
 
     using namespace Utils::TCP;
 
-    SingleTCPClient client("127.0.0.1", 1717, IPType::IPV4);
+    SingleTCPClient client("127.0.0.1", 3030, IPType::IPV4);
     if (!client.ConnectToServer()) {
         std::cerr << "Failed to connect to server." << std::endl;
         return;
