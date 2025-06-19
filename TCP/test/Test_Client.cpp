@@ -6,7 +6,7 @@ void RunClient() {
 
     using namespace Utils::TCP;
 
-    SingleTCPClient client("127.0.0.1", 3030, IPType::IPV4);
+    TCPClient client("127.0.0.1", 3030);
     if (!client.ConnectToServer()) {
         std::cerr << "Failed to connect to server." << std::endl;
         return;
@@ -24,10 +24,12 @@ void RunClient() {
         }
 
         // 发送消息到服务器
-        if (!client.SendData(message)) {
+        if (!client.SendData(message + "\n")) {
             std::cerr << "Failed to send data to server." << std::endl;
             continue;
         }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         // 接收服务器响应
         std::string response;

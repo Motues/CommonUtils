@@ -4,14 +4,14 @@
 #include <iostream>
 
 #include "BasicType.hpp"
+#include "Session.hpp"
 
 namespace Utils::TCP {
 
-class SingleTCPClient {
+class TCPClient {
 public:
-    SingleTCPClient();
-    SingleTCPClient(std::string serverAddress = "127.0.0.1", int port = 1717, IPType ipType = IPType::IPV4);
-    ~SingleTCPClient();
+    TCPClient(std::string serverAddress = "127.0.0.1", int port = 3030);
+    ~TCPClient();
 
     bool ConnectToServer();
     bool SendData(const std::string& data);
@@ -19,10 +19,13 @@ public:
     bool CloseConnection();
 
 private:
-    std::string serverAddress{"127.0.0.1"};
-    int port{1717};
-    IPType ipType{IPType::IPV4};
-    TCPSocketPtr serverSocketPtr;
+    std::string serverAddress_;
+    int port_;
+    IOContext ioContext_;
+    SessionPtr sessionPtr_;
+    MessageHandler  messageHandler_;
+
+    MessageQueue<std::string> recDataQueue_;
 };
 
 }

@@ -1,50 +1,35 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-#include <queue>
-#include <iostream>
-#include <mutex>
-
-#include "BasicType.hpp"
-#include "Utils/MessageQueue.hpp"
+#include "Session.hpp"
+#include "Acceptor.hpp"
 
 namespace Utils :: TCP {
 
-using Utils::MessageQueue::MessageQueue;
+    class TCPServer {
+    public:
+        TCPServer(int port = 3030, int maxSessionCount = 64,
+               size_t ioThreadCount =(std::thread::hardware_concurrency() + 1) / 2
+               );
+        ~TCPServer();
+        void Start();
+        void Stop();
 
-class AsyncTCPServer {
-public:
-    AsyncTCPServer();
-    AsyncTCPServer(int port = 1717, std::string serverAddress = "127.0.0.1", IPType ipType = IPType::IPV4);
-    ~AsyncTCPServer();
+        void Broadcast(const std::string& data);
+        void Unicast(int sessionId, const std::string& data);
+        void CloseSession(int sessionId);
+        void GetMessage(TCPMessage& message);
 
-    bool SendData(const std::string& data, TCPClientPtr& clientPtr); // 发送数据
-    bool RecData(std::string& data, TCPClientPtr& clientPtr); // 接收数据
-    void PostCloseClient(const TCPClientPtr& clientPtr); // 添加关闭客户端任务
-    bool GetMessage(TCPMessage &message); // 获取服务器接收到的消息
+    private:
+        int port_;
+        int maxSessionCount_;
+        std::atomic<bool> isRunning_;
 
-    bool StartServer(); // 启动服务器
-    bool CloseServer(); // 关闭服务器
+        IOContextPoolPtr ioContextPoolPtr_;
+        AcceptorPtr acceptorPtr_;
+        SessionManager sessionManager_;
+        MessageQueuePtr messageQueuePtr_;
 
-private:
-    int port;
-    std::string serverAddress;
-    IPType ipType;
-    int maxClientsNumber{1024};
-    IOContextPtr ioContextPtr;
-    TCPAcceptorPtr acceptorPtr;
-    std::mutex clientsMutex;
-    std::vector<TCPClientPtr> clientsPtr;
-    MessageQueue<TCPMessage> messageQueue;
-    std::thread serverThread;
-
-    bool CreateServer(); // 创建服务器
-    bool BindPort(); // 绑定端口
-    bool ListenServer(); // 监听服务器
-    bool CloseClient(const TCPClientPtr& clientPtr); // 关闭客户端连接
-    void DoAccept();
-    void StartRead(const TCPClientPtr& clientPtr);
-};
+        void handleNewSession(TCPSocketPtr socketPtr);
+    };
 
 }

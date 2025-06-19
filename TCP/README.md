@@ -58,7 +58,7 @@ struct TCPClient {
     int port{0};
 };
 struct TCPMessage {
-    Time time;
+    TimePoint time;
     TCPClientPtr clientPtr;
     std::string data;
 };
