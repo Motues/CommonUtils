@@ -41,10 +41,5 @@ namespace Utils :: TCP {
     using TCPMessageQueue = MessageQueue<TCPMessage>;
     using MessageQueuePtr = std::shared_ptr<TCPMessageQueue>;
 
-    enum class IPType {
-        IPV4,
-        IPV6
-    };
-
 }
 

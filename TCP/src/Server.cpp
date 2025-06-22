@@ -2,8 +2,8 @@
 
 namespace Utils :: TCP {
 
-    TCPServer::TCPServer(int port, int maxSessionCount, size_t ioThreadCount) :
-        port_(port), maxSessionCount_(maxSessionCount) , isRunning_(false){
+    TCPServer::TCPServer(int port, std::string endOfMessage, int maxSessionCount, size_t ioThreadCount) :
+        port_(port), endOfMessage_(std::move(endOfMessage)), maxSessionCount_(maxSessionCount) , isRunning_(false){
 
         TCPEndPoint endPoint(boost::asio::ip::tcp::v4(), port);
         ioContextPoolPtr_ = std::make_shared<IOContextPool>(ioThreadCount);
@@ -30,7 +30,7 @@ namespace Utils :: TCP {
     }
 
     void TCPServer::handleNewSession(TCPSocketPtr socketPtr) {
-        auto session = std::make_shared<Session>(*socketPtr);
+        auto session = std::make_shared<Session>(*socketPtr, endOfMessage_);
         session->SetMessageHandler([this](SessionPtr sessionPtr, const std::string & data) {
             TCPMessage message;
             message.data = data;

@@ -2,11 +2,11 @@
 
 namespace Utils :: TCP {
 
-    Session::Session(IOContext& ioContext, Seconds clockTime) :
-        socket_(ioContext), lastActiveTime_(SystemClock::now()), clockTime_(clockTime) {}
+    Session::Session(IOContext& ioContext, std::string endOfMessage, Seconds clockTime) :
+        socket_(ioContext), endOfMessage_(std::move(endOfMessage)), lastActiveTime_(SystemClock::now()), clockTime_(clockTime) {}
 
-    Session::Session(Utils::TCP::TCPSocket &socket, Utils::TCP::Seconds clockTime) :
-        socket_(std::move(socket)), lastActiveTime_(SystemClock::now()), clockTime_(clockTime){}
+    Session::Session(Utils::TCP::TCPSocket &socket, std::string endOfMessage, Utils::TCP::Seconds clockTime) :
+        socket_(std::move(socket)), endOfMessage_(std::move(endOfMessage)), lastActiveTime_(SystemClock::now()), clockTime_(clockTime){}
 
     Session::~Session() {
         Close();
@@ -32,7 +32,7 @@ namespace Utils :: TCP {
 
     void Session::DoRead() {
         auto self = shared_from_this();
-        boost::asio::async_read_until(socket_, readBuffer_, '\n',
+        boost::asio::async_read_until(socket_, readBuffer_, endOfMessage_,
                                       [this, self](const BoostErrorCode& ec, std::size_t bytes_transferred) {
                                           AsyncRead(ec, bytes_transferred);
                                       });
@@ -40,11 +40,19 @@ namespace Utils :: TCP {
 
     void Session::AsyncRead(const BoostErrorCode& ec, std::size_t bytes_transferred) {
         if (!ec) {
-            std::istream input(&readBuffer_);
-            std::string data;
-            std::getline(input, data);
-            if(messageHandler_) {
-                messageHandler_(shared_from_this(), data);
+            std::ostringstream oss;
+            oss << &readBuffer_;
+            std::string data = oss.str();
+
+            size_t pos = data.find(endOfMessage_);
+
+            if(pos != std::string::npos) {
+                // 只取pos前的消息
+                data = data.substr(0, pos);
+                if(messageHandler_) {
+                    messageHandler_(shared_from_this(), data);
+                }
+                readBuffer_.consume(pos + endOfMessage_.size());
             }
             lastActiveTime_ = SystemClock::now();
             DoRead();

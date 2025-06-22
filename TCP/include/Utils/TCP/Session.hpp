@@ -21,8 +21,8 @@ namespace Utils :: TCP {
         using SessionPtr = std::shared_ptr<Session>;
         using MessageHandler = std::function<void(SessionPtr, const std::string&)>;
 
-        Session(IOContext &ioContext, Seconds clockTime = Seconds(30));
-        Session(TCPSocket &socket, Seconds clockTime = Seconds(30));
+        Session(IOContext &ioContext, std::string endOfMessage, Seconds clockTime = Seconds(30));
+        Session(TCPSocket &socket, std::string endOfMessage, Seconds clockTime = Seconds(30));
         ~Session();
 
         TCPSocket& GetSocket();                      // 获取socket
@@ -41,6 +41,7 @@ namespace Utils :: TCP {
     private:
         TCPSocket socket_;
         int sessionId_;
+        std::string endOfMessage_;
         BoostStreamBuffer readBuffer_;
         std::deque<std::string> writeQueue_;
         std::mutex writeMutex_;
