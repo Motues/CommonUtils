@@ -5,8 +5,8 @@
 
 
 # vscode and vs
-.vs
-.vscode
+.vs/
+.vscode/
 
 # clion
-.idea
+.idea/
