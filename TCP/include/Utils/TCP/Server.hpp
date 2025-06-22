@@ -7,7 +7,7 @@ namespace Utils :: TCP {
 
     class TCPServer {
     public:
-        TCPServer(int port = 3030, int maxSessionCount = 64,
+        TCPServer(int port = 3030, std::string endOfMessage = "\n", int maxSessionCount = 64,
                size_t ioThreadCount =(std::thread::hardware_concurrency() + 1) / 2
                );
         ~TCPServer();
@@ -23,6 +23,7 @@ namespace Utils :: TCP {
         int port_;
         int maxSessionCount_;
         std::atomic<bool> isRunning_;
+        std::string endOfMessage_;
 
         IOContextPoolPtr ioContextPoolPtr_;
         AcceptorPtr acceptorPtr_;

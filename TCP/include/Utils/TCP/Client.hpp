@@ -10,7 +10,7 @@ namespace Utils::TCP {
 
 class TCPClient {
 public:
-    TCPClient(std::string serverAddress = "127.0.0.1", int port = 3030);
+    TCPClient(std::string serverAddress = "127.0.0.1", int port = 3030, std::string endOfMessage = "\n");
     ~TCPClient();
 
     bool ConnectToServer();
@@ -21,6 +21,7 @@ public:
 private:
     std::string serverAddress_;
     int port_;
+    std::string endOfMessage_;
     IOContext ioContext_;
     SessionPtr sessionPtr_;
     MessageHandler  messageHandler_;

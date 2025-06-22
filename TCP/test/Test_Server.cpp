@@ -15,7 +15,7 @@ void OnMessageReceived(const Utils::TCP::TCPMessage& message) {
 int main() {
 
         // 创建服务器实例（默认端口3030，最大会话数64）
-        Utils::TCP::TCPServer server;
+        Utils::TCP::TCPServer server(3030, "$$");
 
         // 启动服务器
         server.Start();

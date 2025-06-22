@@ -3,8 +3,8 @@
 namespace Utils::TCP {
 
 
-TCPClient::TCPClient(std::string serverAddress, int port) :
-    serverAddress_(std::move(serverAddress)), port_(port) {}
+TCPClient::TCPClient(std::string serverAddress, int port, std::string endOfMessage) :
+    serverAddress_(std::move(serverAddress)), port_(port) , endOfMessage_(std::move(endOfMessage)){}
 
 TCPClient::~TCPClient() {
     CloseConnection();
@@ -17,7 +17,7 @@ bool TCPClient::ConnectToServer() {
     socket.connect(endpoint, ec);
     if (ec) return false;
 
-    sessionPtr_ = std::make_shared<Session>(socket);
+    sessionPtr_ = std::make_shared<Session>(socket, endOfMessage_);
     sessionPtr_->SetMessageHandler([this](SessionPtr session, const std::string& data) {
         recDataQueue_.push(data);
     });
