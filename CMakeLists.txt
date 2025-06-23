@@ -14,6 +14,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 find_package(SQLite3 QUIET)
 find_package(nlohmann_json QUIET)
 find_package(Boost REQUIRED COMPONENTS system)
+find_package(OpenSSL REQUIRED)
 
 # 处理错误
 if(SQLITE3_FOUND)
@@ -37,3 +38,4 @@ add_subdirectory(Logger)
 add_subdirectory(JSON)
 add_subdirectory(DataBase)
 add_subdirectory(TCP)
+add_subdirectory(HTTP)

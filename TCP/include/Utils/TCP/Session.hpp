@@ -21,8 +21,8 @@ namespace Utils :: TCP {
         using SessionPtr = std::shared_ptr<Session>;
         using MessageHandler = std::function<void(SessionPtr, const std::string&)>;
 
-        Session(IOContext &ioContext, std::string endOfMessage, Seconds clockTime = Seconds(30));
-        Session(TCPSocket &socket, std::string endOfMessage, Seconds clockTime = Seconds(30));
+        Session(IOContext &ioContext, std::string endOfMessage = "\n", Seconds clockTime = Seconds(30));
+        Session(TCPSocket &socket, std::string endOfMessage = "\n", Seconds clockTime = Seconds(30));
         ~Session();
 
         TCPSocket& GetSocket();                      // 获取socket

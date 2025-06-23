@@ -86,7 +86,7 @@ class SessionManager {
 };
 ```
 
-### IOContextPool
+#### IOContextPool
 `IOContextPool` 类的定义位于[Acceptor.hpp](./include/Utils/TCP/Acceptor.hpp)，实现位于[Acceptor.cpp](./src/Acceptor.cpp)。    
 `IOContextPoo`l 类用于管理多个 `IOContext` 对象，并确保每个 `IOContext` 对象都运行在单独的线程上；考虑到性能影响，线程的最大值为CPU核数的一半。该类对外提供一个接口用于获取一个 `IOContext` 对象。其主要接口如下：
 ```cpp
@@ -98,7 +98,7 @@ class IOContextPool {
 };
 ```
 
-### Acceptor
+#### Acceptor
 `Acceptor` 类的定义位于[Acceptor.hpp](./include/Utils/TCP/Acceptor.hpp)，实现位于[Accepptor.cpp](./src/Acceptor.cpp)。  
 `Acceptor` 类用于监听TCP连接，并接收新的连接请求，内部维护一个`IOCOntextPool`对象。`Acceptor` 类同样支持用户自定义回调函数，在监听到新的连接请求时，会调用用户自定义的回调函数。其主要接口如下：
 ```cpp
