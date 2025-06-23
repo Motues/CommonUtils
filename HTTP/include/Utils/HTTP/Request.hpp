@@ -44,6 +44,5 @@ namespace Utils :: HTTP {
                 const Headers& headers);
         };
 
-        struct
     }
 }
