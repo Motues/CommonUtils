@@ -33,7 +33,6 @@ namespace Utils :: JSON {
         }
 
         static JsonManager FromString(const std::string& jsonString) {
-            std::cout << jsonString << std::endl;
             nlohmann::json json;
             try {
                 json = nlohmann::json::parse(jsonString);
