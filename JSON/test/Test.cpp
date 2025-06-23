@@ -4,7 +4,7 @@
 int main() {
     using namespace Utils::JSON;
 
-    JsonManager json("test.json");
+    JsonManager json = JsonManager::FromFile("test.json");
 
     std::cout << json["name"].String() << std::endl;
     std::cout << json["version"].String() << std::endl;

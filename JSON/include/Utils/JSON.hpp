@@ -12,18 +12,35 @@ namespace Utils :: JSON {
     class JsonManager {
     public:
         // 从文件加载 JSON
-        explicit JsonManager(const std::string& filePath) {
+        explicit JsonManager(nlohmann::json& json) {
+            json_ = json;
+            ptr_ = &json_;
+        }
+
+        static JsonManager FromFile(const std::string& filePath) {
             std::ifstream in(filePath);
+            nlohmann::json json{};
             if (!in.is_open()) {
                 std::cout << "无法打开文件：" << filePath << std::endl;
-                return;
+                return JsonManager{json};
             }
             try {
-                in >> json_;
+                in >> json;
             } catch (const nlohmann::json::parse_error& e) {
                 std::cout << "JSON解析错误: " << e.what() << std::endl;
             }
-            ptr_ = &json_;
+            return JsonManager(json);
+        }
+
+        static JsonManager FromString(const std::string& jsonString) {
+            std::cout << jsonString << std::endl;
+            nlohmann::json json;
+            try {
+                json = nlohmann::json::parse(jsonString);
+            } catch (const nlohmann::json::parse_error& e) {
+                std::cout << "JSON解析错误: " << e.what() << std::endl;
+            }
+            return JsonManager(json);
         }
 
         // 从现有 JSON 对象构造（用于嵌套访问）
