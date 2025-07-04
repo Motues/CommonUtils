@@ -4,7 +4,7 @@
 #include "UrlParser.hpp"
 #include <map>
 
-namespace Utils :: HTTP {
+namespace Utils :: Network {
     namespace Request {
         using Headers = std::map<std::string, std::string>;
         struct Response {

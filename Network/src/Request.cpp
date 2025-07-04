@@ -1,7 +1,7 @@
-#include "Utils/HTTP/Request.hpp"
+#include "Utils/Network/Request.hpp"
 #include "iostream"
 
-namespace Utils :: HTTP ::Request {
+namespace Utils :: Network ::Request {
 
     using namespace boost::urls;
 
@@ -99,7 +99,7 @@ namespace Utils :: HTTP ::Request {
     Response SyncHttpClient::HTTPSRequest(
         const std::string &method, const std::string &host,
         const std::string &port, const std::string &target,
-        const std::string &body, const Utils::HTTP::Request::Headers &headers) {
+        const std::string &body, const Request::Headers &headers) {
         Response response;
 
         try {

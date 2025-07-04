@@ -5,12 +5,19 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/url.hpp>
 #include <boost/beast/websocket/ssl.hpp>
+#include <chrono>
 
-namespace Utils :: HTTP {
+#include "Utils/MessageQueue.hpp"
+
+
+namespace Utils :: Network {
+
+    using MessageQueue::MessageQueue;
 
     namespace Beast = boost::beast;
     namespace HTTP = Beast::http;
     namespace URL = boost::urls;
+    namespace Asio = boost::asio;
     namespace SSL = boost::asio::ssl;
 
     using BoostErrorCode = boost::system::error_code;
@@ -27,6 +34,16 @@ namespace Utils :: HTTP {
 
     using HTTPRequestString = HTTP::request<HTTP::string_body>;
     using HTTPResponseString = HTTP::response<HTTP::string_body>;
+    using HTTPRequestHandler = std::function<void(HTTPRequestString&, HTTPResponseString&)>;
 
+    using SystemTime = std::chrono::system_clock;
+
+    struct WebSocketMessage {
+        int sessionId;
+        std::string message;
+        SystemTime time;
+    };
+
+    using WebSocketMessageQueue = MessageQueue<WebSocketMessage>;
 
 }
