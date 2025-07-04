@@ -1,11 +1,9 @@
 #pragma once
 
-#include "../BasicType.hpp"
+#include "BasicType.hpp"
 
 namespace Utils :: Network {
 namespace HTTPS {
-
-
 
     // response 的状态码和数据，由 Router 统一处理
     class Router {

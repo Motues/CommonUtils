@@ -10,15 +10,11 @@ namespace Utils :: Network {
 
 namespace HTTPS {
 
-
-    // 使用lambda函数替代std::function定义请求处理程序类型
-    using RequestHandler = std::function<void(HTTPRequestString&, HTTPResponseString&)>;
-
     class HTTPServer {
     public:
         HTTPServer(int port);
 
-        void AddRoute(const std::string& path, const std::string& method, RequestHandler handler);
+        void AddRoute(const std::string& path, const std::string& method, HTTPRequestHandler handler);
         void Start();
         void Stop();
 

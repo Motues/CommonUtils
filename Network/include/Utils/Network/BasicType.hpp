@@ -32,18 +32,7 @@ namespace Utils :: Network {
     using TCPAcceptorPtr = std::shared_ptr<TCPAcceptor>;
     using TCPSocketPtr = std::shared_ptr<TCPSocket>;
 
-    using HTTPRequestString = HTTP::request<HTTP::string_body>;
-    using HTTPResponseString = HTTP::response<HTTP::string_body>;
-    using HTTPRequestHandler = std::function<void(HTTPRequestString&, HTTPResponseString&)>;
-
     using SystemTime = std::chrono::system_clock;
 
-    struct WebSocketMessage {
-        int sessionId;
-        std::string message;
-        SystemTime time;
-    };
-
-    using WebSocketMessageQueue = MessageQueue<WebSocketMessage>;
 
 }

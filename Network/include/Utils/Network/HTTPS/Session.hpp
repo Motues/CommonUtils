@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../BasicType.hpp"
+#include "BasicType.hpp"
 #include "Router.hpp"
 
 namespace Utils :: Network {

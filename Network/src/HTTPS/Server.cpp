@@ -26,7 +26,7 @@ namespace HTTPS {
     }
 
     void HTTPServer::AddRoute(const std::string &path, const std::string &method,
-                              Utils::Network::HTTPS::RequestHandler handler) {
+                              HTTPRequestHandler handler) {
         router_.AddRoute(method, path, handler);
     }
 

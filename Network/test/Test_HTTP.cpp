@@ -5,6 +5,7 @@
 std::atomic<bool> stopSignal(false);
 
 using namespace Utils::Network;
+using namespace Utils::Network::HTTPS;
 
 void Hello_World(HTTPRequestString& req, HTTPResponseString& res) {
     res.set(HTTP::field::server, "C++/Network");
@@ -19,7 +20,7 @@ void SignalHandler(int signal) {
     }
 }
 int main() {
-    HTTPS::HTTPServer server(1717);
+    HTTPServer server(1717);
     server.AddRoute("/hello", "GET", Hello_World);
     server.Start();
 

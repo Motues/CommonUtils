@@ -2,7 +2,7 @@
 
 #include <shared_mutex>
 
-#include "../BasicType.hpp"
+#include "BasicType.hpp"
 #include "Utils/MessageQueue.hpp"
 
 using namespace Utils::MessageQueue;
