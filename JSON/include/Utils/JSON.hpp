@@ -42,6 +42,11 @@ namespace Utils :: JSON {
             return JsonManager(json);
         }
 
+        std::string toString(int indent = 0) const {
+            if(indent == 0) return json_.dump();
+            return json_.dump(indent);
+        }
+
         // 从现有 JSON 对象构造（用于嵌套访问）
         explicit JsonManager(nlohmann::json* ptr) : ptr_(ptr), isOwner_(false) {}
 

@@ -17,5 +17,7 @@ int main() {
     json["object"]["d"] = 5;
     json.saveToFile("test_new.json");
 
+    std::cout << json.toString(4) << std::endl;
+
     return 0;
 }
