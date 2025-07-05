@@ -6,7 +6,7 @@ int main() {
 
     // 创建数据库连接
     std::string dbFileName = "test.db";
-    SQLiteWrapper dbWrapper(dbFileName, true, "test.log");
+    SQLiteWrapper dbWrapper(dbFileName);
 
     // 定义表结构
     SQLiteKeyType columns;

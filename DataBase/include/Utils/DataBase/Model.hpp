@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Utils/Logger.hpp"
 #include "BasicType.hpp"
 
 #include <sqlite3.h>

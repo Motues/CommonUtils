@@ -20,7 +20,7 @@ target_include_directories(UtilsDataBase
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 target_link_libraries(UtilsDataBase 
-    PUBLIC SQLite::SQLite3 Utils::Logger
+    PUBLIC SQLite::SQLite3
 )
 
 file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp") 

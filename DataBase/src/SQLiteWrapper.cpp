@@ -1,31 +1,18 @@
 #include "Utils/DataBase/SQLiteWrapper.hpp"
+#include <iostream>
 
 namespace Utils :: DataBase {
-    SQLiteWrapper::SQLiteWrapper(std::string &dbName, bool consoleLogger, const std::string &logFile) {
-        ConfigureLogger(consoleLogger, logFile);
+    SQLiteWrapper::SQLiteWrapper(const std::string &dbName) {
         int rc = sqlite3_open(dbName.c_str(), &db);
         if (rc != SQLITE_OK){
-            logger.Error("Can't open database:{}", dbName);
-            logger.Error("SQL error:{}", sqlite3_errmsg(db));
+            std::cerr << "Can't open database: " << dbName << std::endl;
+            std::cerr << "SQL error: " << sqlite3_errmsg(db) << std::endl;
             return;
         }
-        logger.Info("Opened database successfully");
     }
 
     SQLiteWrapper::~SQLiteWrapper() {
-        logger.Flush();
         sqlite3_close(db);
-    }
-
-    void SQLiteWrapper::ConfigureLogger(bool consoleLogger, const std::string &logFile) {
-        if (consoleLogger) {
-            auto console_logger = std::make_shared<Logger::ConsoleLogPolicy>();
-            logger.AddPolicy(console_logger);
-        }
-        if(!logFile.empty()) {
-            auto file_logger = std::make_shared<Logger::FileLogPolicy>(logFile);
-            logger.AddPolicy(file_logger);
-        }
     }
 
     bool SQLiteWrapper::CreateTable(const std::string& tableName, const SQLiteKeyType &columns) {
@@ -36,7 +23,7 @@ namespace Utils :: DataBase {
         std::string sql = "DROP TABLE IF EXISTS " + tableName + ";";
         int rc = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, nullptr);
         if (rc != SQLITE_OK) {
-            logger.Error("Failed to delete table {}: {}", tableName, sqlite3_errmsg(db));
+            std::cerr << "Failed to delete table " << tableName << ": " << sqlite3_errmsg(db) << std::endl;
             return false;
         }
         return true;

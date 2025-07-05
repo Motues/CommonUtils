@@ -1,4 +1,5 @@
 #include "Utils/DataBase/Model.hpp"
+#include <stdexcept>
 
 namespace Utils :: DataBase {
     bool Model::CreateTable(sqlite3 *db, const std::string& tableName, const SQLiteKeyType & columns) {
