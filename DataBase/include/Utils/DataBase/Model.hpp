@@ -15,6 +15,7 @@ namespace Utils :: DataBase {
         // 查询数据
         static SQLiteQueryResult ExecuteQuery(sqlite3 *db, const std::string& sql);
         static SQLiteQueryResult QueryColumnAll(sqlite3 *db, const std::string& tableName);
+        static SQLiteQueryResult QueryColumnAllCondition(sqlite3 *db, const std::string& tableName, const std::string& condition);
         static SQLiteQueryResult QueryColumn(sqlite3 *db, const std::string& tableName, std::vector<std::string> &columns);
         static SQLiteQueryResult QueryColumnCondition(sqlite3 *db, const std::string& tableName, std::vector<std::string> &columns, const std::string& condition);
         // 更新数据

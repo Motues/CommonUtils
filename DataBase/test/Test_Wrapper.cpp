@@ -29,10 +29,26 @@ int main() {
         std::cerr << "Failed to insert data!" << std::endl;
         return -1;
     }
+    data["name"] = "Mike Mo";
+    data["age"] = "27";
+    data["id"] = "2";
+    if (!dbWrapper.InsertData("users", data)) {
+        std::cerr << "Failed to insert data!" << std::endl;
+        return -1;
+    }
 
     // 查询所有数据
     auto result = dbWrapper.QueryData("users");
     std::cout << "Query all data:" << std::endl;
+    for (const auto& row : result) {
+        for (const auto& [key, value] : row) {
+            std::cout << key << ": " << value << ", ";
+        }
+        std::cout << std::endl;
+    }
+
+    result = dbWrapper.QueryDataCondition("users", "id=1");
+    std::cout << "Query data condition: id=1" << std::endl;
     for (const auto& row : result) {
         for (const auto& [key, value] : row) {
             std::cout << key << ": " << value << ", ";

@@ -15,6 +15,7 @@ namespace Utils :: DataBase {
         bool DeleteData(const std::string& tableName, const std::string& condition);
         bool UpdateData(const std::string& tableName, const SQLiteKeyValue &data, const std::string& condition);
         SQLiteQueryResult QueryData(const std::string &tableName);
+        SQLiteQueryResult QueryDataCondition(const std::string &tableName, const std::string &condition);
         void SQLiteSyntax(std::string &sql);
 
         sqlite3* GetDatabase() const { return db; }

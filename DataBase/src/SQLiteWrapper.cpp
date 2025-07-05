@@ -44,6 +44,9 @@ namespace Utils :: DataBase {
     SQLiteQueryResult SQLiteWrapper::QueryData(const std::string& tableName) {
         return Model::QueryColumnAll(db, tableName);
     }
+    SQLiteQueryResult SQLiteWrapper::QueryDataCondition(const std::string& tableName, const std::string& condition) {
+        return Model::QueryColumnAllCondition(db, tableName, condition);
+    }
 
     void SQLiteWrapper::SQLiteSyntax(std::string &sql) {
         // 这里可以添加对SQL语句的检查或预处理逻辑

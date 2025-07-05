@@ -50,7 +50,7 @@ namespace Utils :: JSON {
         JsonManager& operator=(const JsonManager&) = delete;
 
         // 通过字符串键访问子节点
-        JsonManager operator[](const std::string& key) {
+        JsonManager operator[](const std::string& key) const {
             if (!ptr_->contains(key)) {
                 std::cout << "参数不存在：" << key << std::endl;
             }
@@ -58,16 +58,46 @@ namespace Utils :: JSON {
         }
 
         // 通过整数索引访问数组元素
-        JsonManager operator[](size_t index) {
+        JsonManager operator[](size_t index) const {
             if (!ptr_->is_array() || index >= ptr_->size()) {
                 std::cout << "数组索引越界或非数组类型" << std::endl;
             }
             return JsonManager(&(*ptr_)[index]);
         }
 
+        //
+        JsonManager operator[](const std::string& key) {
+            if (!ptr_->is_object()) {
+                *ptr_ = nlohmann::json::object(); // 如果不是对象则初始化为空对象
+            }
+            return JsonManager(&(*ptr_)[key]);   // 自动创建键
+        }
+
+        JsonManager operator[](size_t index) {
+            if (!ptr_->is_array()) {
+                *ptr_ = nlohmann::json::array(); // 如果不是数组则初始化为空数组
+            }
+            while (index >= ptr_->size()) {
+                ptr_->push_back(nullptr);       // 自动填充空元素到目标索引
+            }
+            return JsonManager(&(*ptr_)[index]);
+        }
+
+        template<typename T>
+        JsonManager& operator=(const T& value) {
+            *ptr_ = value;
+            return *this;
+        }
+
         // 获取值
         template<typename T>
         [[nodiscard]] T get() const {
+            return ptr_->get<T>();
+        }
+
+        // 允许隐式转换
+        template<typename T>
+        explicit operator T() const {
             return ptr_->get<T>();
         }
 

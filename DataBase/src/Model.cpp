@@ -66,6 +66,11 @@ namespace Utils :: DataBase {
         return ExecuteQuery(db, sql);
     }
 
+    SQLiteQueryResult Model::QueryColumnAllCondition(sqlite3 *db, const std::string& tableName, const std::string& condition) {
+        std::string sql = "SELECT * FROM " + tableName + " WHERE " + condition + ";";
+        return ExecuteQuery(db, sql);
+    }
+
     SQLiteQueryResult Model::QueryColumn(sqlite3 *db, const std::string& tableName, std::vector<std::string> &columns) {
         std::string sql = "SELECT ";
         for(auto &column : columns) {
