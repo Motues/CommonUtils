@@ -61,5 +61,9 @@ namespace Utils :: TCP {
         else message = messageQueuePtr_->pop();
     }
 
+    void TCPServer::CleanExpiredSession() {
+        sessionManager_.CleanExpiredSession();
+    }
+
 
 }

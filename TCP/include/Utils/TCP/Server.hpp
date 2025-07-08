@@ -19,6 +19,8 @@ namespace Utils :: TCP {
         void CloseSession(int sessionId);
         void GetMessage(TCPMessage& message);
 
+        void CleanExpiredSession();
+
     private:
         int port_;
         int maxSessionCount_;
