@@ -22,7 +22,7 @@ namespace HTTPS {
 
     void Router::HandleRequest(HTTPRequestString& req, HTTPResponseString& res) {
         std::string method = req.method_string().data();
-        std::string path = req.target().data();
+        std::string path = req.target();
 
         std::string key = method + ":" + path;
 
