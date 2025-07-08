@@ -57,7 +57,8 @@ namespace Utils :: TCP {
     }
 
     void TCPServer::GetMessage(TCPMessage& message) {
-        message = messageQueuePtr_->pop();
+        if(messageQueuePtr_->empty()) message = TCPMessage();
+        else message = messageQueuePtr_->pop();
     }
 
 

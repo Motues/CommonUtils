@@ -19,7 +19,7 @@ namespace Utils :: TCP {
         return sessionId_;
     }
     int Session::GetPort() {
-        return socket_.local_endpoint().port();
+        return socket_.remote_endpoint().port();
     }
     std::string Session::GetAddress() {
         return socket_.remote_endpoint().address().to_string();
