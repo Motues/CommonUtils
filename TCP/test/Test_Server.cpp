@@ -28,6 +28,7 @@ int main() {
                 if (!message.data.empty()) {
                     OnMessageReceived(message);
                 }
+                server.CleanExpiredSession();
             }
 
     return 0;
